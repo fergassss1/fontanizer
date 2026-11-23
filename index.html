@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fontanizer</title>
+
+  <!-- Google Fonts: Google Sans Flex & Google Sans Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,400..700;1,400..700&family=Google+Sans+Flex:opsz,wght@6..144,400..700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Material Symbols Rounded -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      /* Material Expressive 3 Warm Orange Light Palette */
+      --md-sys-color-background: #FFF8F4;
+      --md-sys-color-surface: #FFF8F4;
+      --md-sys-color-surface-container-low: #FFF1E8;
+      --md-sys-color-surface-container: #FFE8D9;
+      --md-sys-color-surface-container-high: #FFDCC7;
+      --md-sys-color-surface-container-highest: #FFD0B5;
+      --md-sys-color-primary: #E84E1B;
+      --md-sys-color-on-primary: #FFFFFF;
+      --md-sys-color-primary-container: #FFDBCF;
+      --md-sys-color-on-primary-container: #380D00;
+      --md-sys-color-secondary-container: #FFDEC9;
+      --md-sys-color-on-secondary-container: #2D1609;
+      --md-sys-color-on-surface: #261812;
+      --md-sys-color-on-surface-variant: #574238;
+      --md-sys-color-outline: #8A7165;
+      --md-sys-color-outline-variant: #DFC1B2;
+      --md-sys-color-error-container: #FFDAD6;
+      --md-sys-color-on-error-container: #410002;
+      --md-sys-color-error: #BA1A1A;
+      --md-sys-shadow: 0 6px 24px -6px rgba(138, 63, 29, 0.12);
+    }
+
+    html.dark {
+      /* Material Expressive 3 Warm Espresso-Orange Dark Palette */
+      --md-sys-color-background: #1A110D;
+      --md-sys-color-surface: #1A110D;
+      --md-sys-color-surface-container-low: #231813;
+      --md-sys-color-surface-container: #2B1E18;
+      --md-sys-color-surface-container-high: #362720;
+      --md-sys-color-surface-container-highest: #423129;
+      --md-sys-color-primary: #FFB59C;
+      --md-sys-color-on-primary: #5A1B00;
+      --md-sys-color-primary-container: #7F2B07;
+      --md-sys-color-on-primary-container: #FFDBCF;
+      --md-sys-color-secondary-container: #553F33;
+      --md-sys-color-on-secondary-container: #FFDBCF;
+      --md-sys-color-on-surface: #F6DFD5;
+      --md-sys-color-on-surface-variant: #DBBFA9;
+      --md-sys-color-outline: #A38B7D;
+      --md-sys-color-outline-variant: #564238;
+      --md-sys-color-error-container: #93000A;
+      --md-sys-color-on-error-container: #FFDAD6;
+      --md-sys-color-error: #FFB4AB;
+      --md-sys-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Google Sans Flex", system-ui, -apple-system, sans-serif;
+      background-color: var(--md-sys-color-background);
+      color: var(--md-sys-color-on-surface);
+      transition: background-color 0.25s ease, color 0.25s ease;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .font-mono-code {
+      font-family: "Google Sans Code", ui-monospace, SFMono-Regular, monospace;
+    }
+
+    .material-symbols-rounded {
+      font-family: "Material Symbols Rounded";
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      user-select: none;
+      font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24;
+    }
+
+    .material-symbols-rounded.filled {
+      font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+    }
+
+    .m3-surface-low {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .m3-surface {
+      background-color: var(--md-sys-color-surface-container);
+      border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .m3-surface-high {
+      background-color: var(--md-sys-color-surface-container-high);
+    }
+
+    .m3-primary-btn {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+      transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1), filter 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .m3-primary-btn:hover:not(:disabled) {
+      filter: brightness(1.06);
+      box-shadow: 0 6px 18px -4px rgba(232, 78, 27, 0.45);
+    }
+
+    .m3-primary-btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .m3-primary-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .m3-tonal-btn {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1), background-color 0.16s ease;
+    }
+
+    .m3-tonal-btn:hover {
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    .m3-tonal-btn:active {
+      transform: scale(0.97);
+    }
+
+    .m3-icon-btn {
+      background-color: var(--md-sys-color-surface-container);
+      color: var(--md-sys-color-on-surface-variant);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+    }
+
+    .m3-icon-btn:hover {
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+    }
+
+    .m3-icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    .m3-pill-input {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1.5px solid var(--md-sys-color-outline-variant);
+      color: var(--md-sys-color-on-surface);
+      box-shadow: var(--md-sys-shadow);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .m3-pill-input:focus-within {
+      border-color: var(--md-sys-color-primary);
+      box-shadow: 0 0 0 4px rgba(232, 78, 27, 0.16);
+    }
+
+    .m3-card {
+      background-color: var(--md-sys-color-surface-container-low);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      border-radius: 28px;
+      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .m3-card:hover {
+      border-color: var(--md-sys-color-primary);
+      box-shadow: var(--md-sys-shadow);
+    }
+
+    /* Expressive Linear Indeterminate Progress Bar */
+    .m3-progress-track {
+      height: 6px;
+      border-radius: 9999px;
+      background-color: var(--md-sys-color-surface-container-high);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .m3-progress-indicator {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 42%;
+      border-radius: 9999px;
+      background-color: var(--md-sys-color-primary);
+      animation: m3-indeterminate 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes m3-indeterminate {
+      0% {
+        left: -45%;
+        width: 35%;
+      }
+      50% {
+        left: 35%;
+        width: 55%;
+      }
+      100% {
+        left: 105%;
+        width: 35%;
+      }
+    }
+
+    /* Custom Range Slider */
+    input[type="range"].m3-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 9999px;
+      background: var(--md-sys-color-surface-container-highest);
+      outline: none;
+    }
+
+    input[type="range"].m3-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 9999px;
+      background: var(--md-sys-color-primary);
+      cursor: pointer;
+      border: 3px solid var(--md-sys-color-background);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"].m3-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    input[type="range"].m3-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 9999px;
+      background: var(--md-sys-color-primary);
+      cursor: pointer;
+      border: 3px solid var(--md-sys-color-background);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .specimen-box {
+      background-color: var(--md-sys-color-surface);
+      border: 1px dashed var(--md-sys-color-outline-variant);
+      border-radius: 20px;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    /* Toast snackbar */
+    .m3-snackbar {
+      background-color: var(--md-sys-color-on-surface);
+      color: var(--md-sys-color-surface);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
+    }
+
+    .m3-snackbar.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-[#FF5A1F]/20">
+  <!-- Dynamic injected @font-face rules container -->
+  <style id="dynamic-font-faces"></style>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+    <!-- Top App Bar: Plain lowercase title only (no wordmark, no logo, no emojis) -->
+    <header class="flex items-center justify-between gap-4 mb-8 sm:mb-10">
+      <a
+        href="./"
+        class="text-2xl sm:text-3xl font-bold tracking-tight lowercase select-none"
+        style="color: var(--md-sys-color-primary);"
+      >
+        fontanizer
+      </a>
+
+      <div class="flex items-center gap-2.5">
+        <button
+          id="demoBtn"
+          type="button"
+          class="m3-tonal-btn px-4 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
+          title="Load sample font inspection results"
+        >
+          <span class="material-symbols-rounded text-[19px]">visibility</span>
+          <span>sample</span>
+        </button>
+
+        <button
+          id="settingsToggleBtn"
+          type="button"
+          class="m3-icon-btn px-4 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
+          aria-expanded="false"
+          aria-controls="workerConfigPanel"
+          title="Configure Cloudflare Worker endpoint"
+        >
+          <span class="material-symbols-rounded text-[19px]">settings</span>
+          <span class="hidden sm:inline">endpoint</span>
+          <span
+            id="endpointStatusDot"
+            class="w-2 h-2 rounded-full"
+            style="background-color: var(--md-sys-color-primary);"
+          ></span>
+        </button>
+
+        <button
+          id="themeToggleBtn"
+          type="button"
+          class="m3-icon-btn w-11 h-11 rounded-full inline-flex items-center justify-center cursor-pointer"
+          aria-label="Toggle color theme"
+          title="Toggle light or dark theme"
+        >
+          <span id="themeIcon" class="material-symbols-rounded">dark_mode</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Collapsible Worker Endpoint Configuration Drawer -->
+    <section
+      id="workerConfigPanel"
+      class="hidden mb-6 p-5 sm:p-6 rounded-[28px] m3-surface-low transition-all"
+    >
+      <div class="flex items-start justify-between gap-4 mb-3">
+        <div>
+          <h2 class="text-base font-bold" style="color: var(--md-sys-color-on-surface);">
+            Cloudflare Worker Endpoint
+          </h2>
+          <p class="text-sm mt-0.5" style="color: var(--md-sys-color-on-surface-variant);">
+            Enter your deployed <span class="font-mono-code text-xs">.workers.dev</span> URL. Saved locally in your browser.
+          </p>
+        </div>
+        <button
+          id="closeConfigBtn"
+          type="button"
+          class="m3-icon-btn w-9 h-9 rounded-full inline-flex items-center justify-center cursor-pointer shrink-0"
+          aria-label="Close endpoint configuration"
+        >
+          <span class="material-symbols-rounded text-[18px]">close</span>
+        </button>
+      </div>
+
+      <form id="workerConfigForm" class="flex flex-col sm:flex-row gap-3 mt-4">
+        <input
+          id="workerUrlInput"
+          type="url"
+          required
+          placeholder="https://fontanizer.your-subdomain.workers.dev"
+          class="font-mono-code text-sm flex-1 px-4 py-3 rounded-2xl outline-none"
+          style="
+            background-color: var(--md-sys-color-surface);
+            border: 1.5px solid var(--md-sys-color-outline-variant);
+            color: var(--md-sys-color-on-surface);
+          "
+        />
+        <button
+          type="submit"
+          class="m3-primary-btn px-6 py-3 rounded-full text-sm font-semibold inline-flex items-center justify-center gap-2 cursor-pointer shrink-0"
+        >
+          <span class="material-symbols-rounded text-[19px]">check</span>
+          <span>Save endpoint</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Hero Search Section -->
+    <section class="mb-8">
+      <form id="inspectForm" class="m3-pill-input rounded-full p-2 pl-5 sm:pl-6 flex items-center gap-2 sm:gap-3">
+        <span
+          class="material-symbols-rounded text-[22px] shrink-0"
+          style="color: var(--md-sys-color-primary);"
+        >
+          search
+        </span>
+
+        <input
+          id="targetUrlInput"
+          type="text"
+          inputmode="url"
+          autocomplete="url"
+          spellcheck="false"
+          placeholder="Paste a website URL to extract fonts (e.g. stripe.com)"
+          aria-label="Target website URL"
+          class="w-full bg-transparent outline-none text-base sm:text-lg py-2.5 placeholder:opacity-60"
+          style="color: var(--md-sys-color-on-surface);"
+          required
+        />
+
+        <button
+          id="clearUrlBtn"
+          type="button"
+          class="hidden w-9 h-9 rounded-full items-center justify-center cursor-pointer shrink-0 hover:opacity-80"
+          style="color: var(--md-sys-color-on-surface-variant);"
+          aria-label="Clear URL"
+        >
+          <span class="material-symbols-rounded text-[19px]">close</span>
+        </button>
+
+        <button
+          id="inspectBtn"
+          type="submit"
+          class="m3-primary-btn px-5 sm:px-7 py-3.5 rounded-full font-semibold text-sm sm:text-base inline-flex items-center gap-2 cursor-pointer shrink-0"
+        >
+          <span>Inspect</span>
+          <span class="material-symbols-rounded text-[20px]">arrow_forward</span>
+        </button>
+      </form>
+
+      <!-- Quick Example Pills -->
+      <div class="flex flex-wrap items-center gap-2 mt-3.5 px-2">
+        <span class="text-xs font-medium" style="color: var(--md-sys-color-on-surface-variant);">
+          Try:
+        </span>
+        <button
+          type="button"
+          data-quick-url="https://stripe.com"
+          class="quick-url-pill m3-tonal-btn px-3 py-1 rounded-full text-xs font-medium cursor-pointer"
+        >
+          stripe.com
+        </button>
+        <button
+          type="button"
+          data-quick-url="https://linear.app"
+          class="quick-url-pill m3-tonal-btn px-3 py-1 rounded-full text-xs font-medium cursor-pointer"
+        >
+          linear.app
+        </button>
+        <button
+          type="button"
+          data-quick-url="https://vercel.com"
+          class="quick-url-pill m3-tonal-btn px-3 py-1 rounded-full text-xs font-medium cursor-pointer"
+        >
+          vercel.com
+        </button>
+        <button
+          type="button"
+          data-quick-url="https://fonts.google.com"
+          class="quick-url-pill m3-tonal-btn px-3 py-1 rounded-full text-xs font-medium cursor-pointer"
+        >
+          fonts.google.com
+        </button>
+      </div>
+    </section>
+
+    <!-- Loading Progress Indicator -->
+    <div id="loadingSection" class="hidden mb-8">
+      <div class="p-6 rounded-[28px] m3-surface-low">
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <span
+              class="material-symbols-rounded animate-spin"
+              style="color: var(--md-sys-color-primary);"
+            >
+              refresh
+            </span>
+            <span id="loadingText" class="text-sm font-semibold">
+              Scanning stylesheets and @font-face declarations...
+            </span>
+          </div>
+          <span class="text-xs font-mono-code" style="color: var(--md-sys-color-on-surface-variant);">
+            desktop UA
+          </span>
+        </div>
+        <div class="m3-progress-track">
+          <div class="m3-progress-indicator"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div
+      id="errorSection"
+      class="hidden mb-8 p-5 sm:p-6 rounded-[28px]"
+      style="
+        background-color: var(--md-sys-color-error-container);
+        color: var(--md-sys-color-on-error-container);
+      "
+      role="alert"
+    >
+      <div class="flex items-start gap-3.5">
+        <span class="material-symbols-rounded filled text-[24px] shrink-0 mt-0.5">
+          error
+        </span>
+        <div class="flex-1 min-w-0">
+          <h3 id="errorTitle" class="font-bold text-base">
+            Could not inspect website
+          </h3>
+          <p id="errorMessage" class="text-sm mt-1 opacity-90 leading-relaxed"></p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button
+              id="openEndpointFromErrorBtn"
+              type="button"
+              class="px-4 py-1.5 rounded-full text-xs font-semibold cursor-pointer"
+              style="
+                background-color: var(--md-sys-color-on-error-container);
+                color: var(--md-sys-color-error-container);
+              "
+            >
+              Check Worker endpoint
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Workspace (Hidden until results or sample loaded) -->
+    <main id="resultsWorkspace" class="hidden">
+      <!-- Summary & Filter Bar -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 p-5 rounded-[28px] m3-surface-low">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <span
+              id="fontCountBadge"
+              class="px-3.5 py-1 rounded-full text-xs font-bold"
+              style="
+                background-color: var(--md-sys-color-primary);
+                color: var(--md-sys-color-on-primary);
+              "
+            >
+              0 fonts
+            </span>
+            <a
+              id="scannedUrlLink"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-mono-code text-xs sm:text-sm truncate max-w-xs sm:max-w-md hover:underline inline-flex items-center gap-1"
+              style="color: var(--md-sys-color-on-surface);"
+            >
+              <span id="scannedUrlText">https://example.com</span>
+              <span class="material-symbols-rounded text-[15px]">open_in_new</span>
+            </a>
+          </div>
+          <!-- Format Breakdown Pills -->
+          <div id="formatBreakdown" class="flex flex-wrap items-center gap-1.5 mt-2.5"></div>
+        </div>
+
+        <!-- Search/Filter inside discovered fonts -->
+        <div class="flex items-center gap-2 shrink-0">
+          <div
+            class="flex items-center gap-2 px-3.5 py-2 rounded-full"
+            style="
+              background-color: var(--md-sys-color-surface);
+              border: 1px solid var(--md-sys-color-outline-variant);
+            "
+          >
+            <span class="material-symbols-rounded text-[18px]" style="color: var(--md-sys-color-on-surface-variant);">
+              tune
+            </span>
+            <input
+              id="filterFontsInput"
+              type="text"
+              placeholder="Filter results..."
+              class="bg-transparent outline-none text-xs sm:text-sm w-36 sm:w-44"
+              style="color: var(--md-sys-color-on-surface);"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Specimen Preview Toolbar -->
+      <div class="p-4 sm:p-5 rounded-[28px] m3-surface mb-6 flex flex-col lg:flex-row lg:items-center gap-4">
+        <div class="flex items-center gap-2.5 flex-1">
+          <span class="material-symbols-rounded text-[20px] shrink-0" style="color: var(--md-sys-color-primary);">
+            text_fields
+          </span>
+          <input
+            id="previewTextInput"
+            type="text"
+            value="The quick brown fox jumps over the lazy dog 0123456789"
+            placeholder="Type custom preview specimen text..."
+            aria-label="Preview specimen text"
+            class="w-full px-4 py-2.5 rounded-2xl text-sm outline-none"
+            style="
+              background-color: var(--md-sys-color-surface);
+              border: 1px solid var(--md-sys-color-outline-variant);
+              color: var(--md-sys-color-on-surface);
+            "
+          />
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-4 shrink-0 px-1">
+          <label
+            for="fontSizeSlider"
+            class="text-xs font-semibold whitespace-nowrap"
+            style="color: var(--md-sys-color-on-surface-variant);"
+          >
+            Size
+          </label>
+          <input
+            id="fontSizeSlider"
+            type="range"
+            min="16"
+            max="64"
+            value="30"
+            class="m3-slider w-32 sm:w-40"
+          />
+          <span
+            id="fontSizeLabel"
+            class="font-mono-code text-xs font-semibold w-11 text-right px-2 py-1 rounded-lg"
+            style="
+              background-color: var(--md-sys-color-surface);
+              color: var(--md-sys-color-on-surface);
+            "
+          >
+            30px
+          </span>
+        </div>
+      </div>
+
+      <!-- Empty Results State -->
+      <div id="emptyResultsBox" class="hidden p-10 rounded-[28px] m3-surface-low text-center">
+        <span
+          class="material-symbols-rounded text-[40px] mb-2"
+          style="color: var(--md-sys-color-on-surface-variant);"
+        >
+          search_off
+        </span>
+        <h3 class="text-base font-bold">No matching fonts found</h3>
+        <p class="text-sm mt-1 max-w-md mx-auto" style="color: var(--md-sys-color-on-surface-variant);">
+          Try clearing your filter or inspecting another URL. Sites that load fonts strictly via client-side JavaScript after hydration may not expose static font links.
+        </p>
+      </div>
+
+      <!-- Font Cards Grid -->
+      <div id="fontCardsGrid" class="grid grid-cols-1 gap-4"></div>
+    </main>
+
+    <!-- Initial Idle Hint -->
+    <section id="idleState" class="py-12 sm:py-16 text-center px-4">
+      <div
+        class="w-16 h-16 rounded-[24px] mx-auto mb-4 flex items-center justify-center"
+        style="
+          background-color: var(--md-sys-color-primary-container);
+          color: var(--md-sys-color-on-primary-container);
+        "
+      >
+        <span class="material-symbols-rounded text-[30px]">font_download</span>
+      </div>
+      <h1 class="text-xl sm:text-2xl font-bold tracking-tight">
+        Inspect and preview web fonts from any URL
+      </h1>
+      <p
+        class="text-sm sm:text-base mt-2 max-w-lg mx-auto leading-relaxed"
+        style="color: var(--md-sys-color-on-surface-variant);"
+      >
+        Paste any website link above to extract its declared font families, inspect original font files, test live specimens, and copy ready-to-use CSS.
+      </p>
+    </section>
+  </div>
+
+  <!-- Material Snackbar Feedback -->
+  <div
+    id="snackbar"
+    class="m3-snackbar fixed bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 text-sm font-medium inline-flex items-center gap-2.5 z-50 pointer-events-none"
+    role="status"
+    aria-live="polite"
+  >
+    <span class="material-symbols-rounded text-[18px]" style="color: var(--md-sys-color-primary);">
+      check_circle
+    </span>
+    <span id="snackbarText">Copied to clipboard</span>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEYS = {
+        WORKER_URL: "fontanizer_worker_url",
+        THEME: "fontanizer_theme",
+      };
+
+      const DEFAULT_WORKER_URL = "https://fontanizer.your-subdomain.workers.dev";
+
+      // Sample payload matching the Cloudflare Worker output schema
+      const SAMPLE_RESPONSE = {
+        url: "https://fonts.google.com/",
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        count: 3,
+        fonts: [
+          {
+            fontName: "Google Sans Flex",
+            originalFontLink:
+              "https://fonts.gstatic.com/s/googlesansflex/v1/sample-google-sans-flex.woff2",
+            fontFileName: "sample-google-sans-flex.woff2",
+          },
+          {
+            fontName: "Google Sans Code",
+            originalFontLink:
+              "https://fonts.gstatic.com/s/googlesanscode/v1/sample-google-sans-code.woff2",
+            fontFileName: "sample-google-sans-code.woff2",
+          },
+          {
+            fontName: "Fraunces",
+            originalFontLink:
+              "https://fonts.gstatic.com/s/fraunces/v31/6NUh8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7hzFUPJH58nib1603gg7S2nfgRYIctxujDg.woff2",
+            fontFileName:
+              "6NUh8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7hzFUPJH58nib1603gg7S2nfgRYIctxujDg.woff2",
+          },
+        ],
+      };
+
+      // DOM References
+      const htmlEl = document.documentElement;
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+      const themeIcon = document.getElementById("themeIcon");
+
+      const settingsToggleBtn = document.getElementById("settingsToggleBtn");
+      const workerConfigPanel = document.getElementById("workerConfigPanel");
+      const closeConfigBtn = document.getElementById("closeConfigBtn");
+      const workerConfigForm = document.getElementById("workerConfigForm");
+      const workerUrlInput = document.getElementById("workerUrlInput");
+      const endpointStatusDot = document.getElementById("endpointStatusDot");
+
+      const inspectForm = document.getElementById("inspectForm");
+      const targetUrlInput = document.getElementById("targetUrlInput");
+      const clearUrlBtn = document.getElementById("clearUrlBtn");
+      const inspectBtn = document.getElementById("inspectBtn");
+      const demoBtn = document.getElementById("demoBtn");
+
+      const loadingSection = document.getElementById("loadingSection");
+      const loadingText = document.getElementById("loadingText");
+      const errorSection = document.getElementById("errorSection");
+      const errorTitle = document.getElementById("errorTitle");
+      const errorMessage = document.getElementById("errorMessage");
+      const openEndpointFromErrorBtn = document.getElementById("openEndpointFromErrorBtn");
+
+      const idleState = document.getElementById("idleState");
+      const resultsWorkspace = document.getElementById("resultsWorkspace");
+      const fontCountBadge = document.getElementById("fontCountBadge");
+      const scannedUrlLink = document.getElementById("scannedUrlLink");
+      const scannedUrlText = document.getElementById("scannedUrlText");
+      const formatBreakdown = document.getElementById("formatBreakdown");
+      const filterFontsInput = document.getElementById("filterFontsInput");
+
+      const previewTextInput = document.getElementById("previewTextInput");
+      const fontSizeSlider = document.getElementById("fontSizeSlider");
+      const fontSizeLabel = document.getElementById("fontSizeLabel");
+
+      const emptyResultsBox = document.getElementById("emptyResultsBox");
+      const fontCardsGrid = document.getElementById("fontCardsGrid");
+      const dynamicFontFacesStyle = document.getElementById("dynamic-font-faces");
+
+      const snackbar = document.getElementById("snackbar");
+      const snackbarText = document.getElementById("snackbarText");
+
+      // State
+      let currentFonts = [];
+      let currentScannedUrl = "";
+      let activeFormatFilter = "ALL";
+      let snackbarTimeout = null;
+
+      // Initialize Theme
+      function initTheme() {
+        const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isDark = savedTheme ? savedTheme === "dark" : prefersDark;
+        applyTheme(isDark);
+      }
+
+      function applyTheme(isDark) {
+        if (isDark) {
+          htmlEl.classList.add("dark");
+          themeIcon.textContent = "light_mode";
+        } else {
+          htmlEl.classList.remove("dark");
+          themeIcon.textContent = "dark_mode";
+        }
+        localStorage.setItem(STORAGE_KEYS.THEME, isDark ? "dark" : "light");
+      }
+
+      themeToggleBtn.addEventListener("click", () => {
+        applyTheme(!htmlEl.classList.contains("dark"));
+      });
+
+      // Worker URL Management
+      function getWorkerUrl() {
+        return (localStorage.getItem(STORAGE_KEYS.WORKER_URL) || DEFAULT_WORKER_URL).replace(/\/+$/, "");
+      }
+
+      function updateEndpointIndicator() {
+        const url = getWorkerUrl();
+        const isPlaceholder = url.includes("your-subdomain.workers.dev");
+        endpointStatusDot.style.backgroundColor = isPlaceholder
+          ? "#F59E0B"
+          : "var(--md-sys-color-primary)";
+      }
+
+      function initWorkerConfig() {
+        workerUrlInput.value = getWorkerUrl();
+        updateEndpointIndicator();
+      }
+
+      function toggleConfigPanel(forceState) {
+        const isHidden = workerConfigPanel.classList.contains("hidden");
+        const shouldOpen = typeof forceState === "boolean" ? forceState : isHidden;
+        workerConfigPanel.classList.toggle("hidden", !shouldOpen);
+        settingsToggleBtn.setAttribute("aria-expanded", String(shouldOpen));
+        if (shouldOpen) {
+          workerUrlInput.focus();
+        }
+      }
+
+      settingsToggleBtn.addEventListener("click", () => toggleConfigPanel());
+      closeConfigBtn.addEventListener("click", () => toggleConfigPanel(false));
+      openEndpointFromErrorBtn.addEventListener("click", () => toggleConfigPanel(true));
+
+      workerConfigForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const raw = workerUrlInput.value.trim();
+        if (!raw) return;
+        try {
+          const normalized = normalizeUrl(raw).replace(/\/+$/, "");
+          localStorage.setItem(STORAGE_KEYS.WORKER_URL, normalized);
+          workerUrlInput.value = normalized;
+          updateEndpointIndicator();
+          toggleConfigPanel(false);
+          showSnackbar("Worker endpoint saved");
+        } catch {
+          showSnackbar("Please enter a valid Worker URL");
+        }
+      });
+
+      // Helpers
+      function normalizeUrl(input) {
+        let trimmed = input.trim();
+        if (!/^https?:\/\//i.test(trimmed)) {
+          trimmed = "https://" + trimmed;
+        }
+        return new URL(trimmed).toString();
+      }
+
+      function getFontFormat(fileName, link) {
+        const source = `${fileName || ""} ${link || ""}`;
+        const match = source.match(/\.(woff2|woff|ttf|otf|eot|svg)(?:$|[?#\s])/i);
+        if (match) return match[1].toUpperCase();
+        if (/fonts\.gstatic\.com/i.test(link || "")) return "WOFF2";
+        return "FONT";
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str ?? "";
+        return div.innerHTML;
+      }
+
+      function showSnackbar(message) {
+        snackbarText.textContent = message;
+        snackbar.classList.add("show");
+        clearTimeout(snackbarTimeout);
+        snackbarTimeout = setTimeout(() => {
+          snackbar.classList.remove("show");
+        }, 2600);
+      }
+
+      function copyTextToClipboard(text, successMessage = "Copied to clipboard") {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          showSnackbar(successMessage);
+        } catch {
+          showSnackbar("Unable to copy text");
+        }
+        document.body.removeChild(textarea);
+      }
+
+      // Dynamic @font-face Injection + Load Status Verification
+      function registerFontFaces(fonts) {
+        const cssRules = [];
+        fonts.forEach((font, idx) => {
+          const alias = `FontanizerPreview_${idx}`;
+          font._previewAlias = alias;
+          const safeUrl = font.originalFontLink.replace(/"/g, '\\"');
+          cssRules.push(`
+            @font-face {
+              font-family: "${alias}";
+              src: url("${safeUrl}");
+              font-display: swap;
+            }
+          `);
+        });
+        dynamicFontFacesStyle.textContent = cssRules.join("\n");
+
+        // Probe loadability via FontFace API so we can flag hotlink/CORS blocked fonts cleanly
+        fonts.forEach((font, idx) => {
+          const statusBadge = document.getElementById(`preview-status-${idx}`);
+          if (!("FontFace" in window)) return;
+
+          try {
+            const tester = new FontFace(font._previewAlias, `url("${font.originalFontLink}")`);
+            tester
+              .load()
+              .then((loadedFace) => {
+                document.fonts.add(loadedFace);
+                if (statusBadge) {
+                  statusBadge.classList.add("hidden");
+                }
+              })
+              .catch(() => {
+                if (statusBadge) {
+                  statusBadge.classList.remove("hidden");
+                }
+              });
+          } catch {
+            if (statusBadge) {
+              statusBadge.classList.remove("hidden");
+            }
+          }
+        });
+      }
+
+      // Render Format Breakdown Filter Pills
+      function renderFormatBreakdown(fonts) {
+        const counts = fonts.reduce((acc, f) => {
+          const fmt = getFontFormat(f.fontFileName, f.originalFontLink);
+          acc[fmt] = (acc[fmt] || 0) + 1;
+          return acc;
+        }, {});
+
+        const formats = Object.keys(counts);
+        if (formats.length === 0) {
+          formatBreakdown.innerHTML = "";
+          return;
+        }
+
+        const pills = [
+          `<button type="button" data-format="ALL" class="format-filter-pill px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors" style="${
+            activeFormatFilter === "ALL"
+              ? "background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);"
+              : "background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface-variant); border: 1px solid var(--md-sys-color-outline-variant);"
+          }">All (${fonts.length})</button>`,
+          ...formats.map((fmt) => {
+            const active = activeFormatFilter === fmt;
+            return `<button type="button" data-format="${fmt}" class="format-filter-pill px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors" style="${
+              active
+                ? "background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);"
+                : "background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface-variant); border: 1px solid var(--md-sys-color-outline-variant);"
+            }">${fmt} (${counts[fmt]})</button>`;
+          }),
+        ];
+
+        formatBreakdown.innerHTML = pills.join("");
+
+        formatBreakdown.querySelectorAll(".format-filter-pill").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            activeFormatFilter = btn.getAttribute("data-format");
+            renderFormatBreakdown(currentFonts);
+            renderFontCards();
+          });
+        });
+      }
+
+      // Render Font Cards
+      function renderFontCards() {
+        const query = filterFontsInput.value.trim().toLowerCase();
+        const previewText =
+          previewTextInput.value.trim() ||
+          "The quick brown fox jumps over the lazy dog 0123456789";
+        const fontSize = `${fontSizeSlider.value}px`;
+
+        const filtered = currentFonts.filter((font) => {
+          const fmt = getFontFormat(font.fontFileName, font.originalFontLink);
+          const matchesFormat = activeFormatFilter === "ALL" || fmt === activeFormatFilter;
+          const matchesQuery =
+            !query ||
+            (font.fontName || "").toLowerCase().includes(query) ||
+            (font.fontFileName || "").toLowerCase().includes(query) ||
+            (font.originalFontLink || "").toLowerCase().includes(query);
+          return matchesFormat && matchesQuery;
+        });
+
+        if (filtered.length === 0) {
+          fontCardsGrid.innerHTML = "";
+          emptyResultsBox.classList.remove("hidden");
+          return;
+        }
+
+        emptyResultsBox.classList.add("hidden");
+
+        fontCardsGrid.innerHTML = filtered
+          .map((font) => {
+            const globalIdx = currentFonts.indexOf(font);
+            const fmt = getFontFormat(font.fontFileName, font.originalFontLink);
+            const safeName = escapeHtml(font.fontName || "Unknown Font");
+            const safeFileName = escapeHtml(font.fontFileName || "unknown-file");
+            const safeLink = escapeHtml(font.originalFontLink || "");
+            const alias = font._previewAlias || "Google Sans Flex";
+
+            return `
+              <article class="m3-card p-5 sm:p-6 flex flex-col gap-4">
+                <!-- Card Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="flex flex-wrap items-center gap-2.5 min-w-0">
+                    <h2 class="text-lg sm:text-xl font-bold truncate" style="color: var(--md-sys-color-on-surface);">
+                      ${safeName}
+                    </h2>
+                    <span
+                      class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide"
+                      style="
+                        background-color: var(--md-sys-color-primary-container);
+                        color: var(--md-sys-color-on-primary-container);
+                      "
+                    >
+                      ${fmt}
+                    </span>
+                    <span
+                      id="preview-status-${globalIdx}"
+                      class="hidden px-2.5 py-0.5 rounded-full text-[11px] font-medium inline-flex items-center gap-1"
+                      style="
+                        background-color: var(--md-sys-color-surface-container-highest);
+                        color: var(--md-sys-color-on-surface-variant);
+                      "
+                      title="Remote server blocks cross-origin font rendering in preview"
+                    >
+                      <span class="material-symbols-rounded text-[14px]">warning</span>
+                      <span>Fallback preview (CORS)</span>
+                    </span>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <a
+                      href="${safeLink}"
+                      download="${safeFileName}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="m3-primary-btn px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"
+                      title="Download font file"
+                    >
+                      <span class="material-symbols-rounded text-[17px]">download</span>
+                      <span>Download</span>
+                    </a>
+
+                    <button
+                      type="button"
+                      data-action="copy-link"
+                      data-index="${globalIdx}"
+                      class="m3-tonal-btn px-3.5 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                      title="Copy direct font URL"
+                    >
+                      <span class="material-symbols-rounded text-[17px]">content_copy</span>
+                      <span>Copy URL</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      data-action="copy-css"
+                      data-index="${globalIdx}"
+                      class="m3-tonal-btn px-3.5 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                      title="Copy @font-face CSS rule"
+                    >
+                      <span class="material-symbols-rounded text-[17px]">code</span>
+                      <span>@font-face</span>
+                    </button>
+
+                    <a
+                      href="${safeLink}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="m3-icon-btn w-8 h-8 rounded-full inline-flex items-center justify-center"
+                      title="Open original font link in new tab"
+                      aria-label="Open original font link"
+                    >
+                      <span class="material-symbols-rounded text-[17px]">open_in_new</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Live Specimen Area -->
+                <div
+                  class="specimen-box px-4 sm:px-5 py-4 sm:py-5 transition-all"
+                  contenteditable="true"
+                  spellcheck="false"
+                  aria-label="Editable live font specimen"
+                  style="font-family: '${alias}', 'Google Sans Flex', sans-serif; font-size: ${fontSize}; line-height: 1.35;"
+                >${escapeHtml(previewText)}</div>
+
+                <!-- Metadata Footer: File Name & Original Link -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 text-xs" style="color: var(--md-sys-color-on-surface-variant);">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="font-semibold shrink-0">File:</span>
+                    <span class="font-mono-code truncate">${safeFileName}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 min-w-0 sm:max-w-[55%]">
+                    <span class="font-semibold shrink-0">Source:</span>
+                    <a
+                      href="${safeLink}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="font-mono-code truncate hover:underline"
+                      title="${safeLink}"
+                    >
+                      ${safeLink}
+                    </a>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      // Handle Card Action Clicks (Event Delegation)
+      fontCardsGrid.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-action]");
+        if (!btn) return;
+
+        const action = btn.getAttribute("data-action");
+        const index = Number(btn.getAttribute("data-index"));
+        const font = currentFonts[index];
+        if (!font) return;
+
+        if (action === "copy-link") {
+          copyTextToClipboard(font.originalFontLink, "Font URL copied");
+          const iconEl = btn.querySelector(".material-symbols-rounded");
+          if (iconEl) {
+            iconEl.textContent = "check";
+            setTimeout(() => {
+              iconEl.textContent = "content_copy";
+            }, 1500);
+          }
+        } else if (action === "copy-css") {
+          const fmt = getFontFormat(font.fontFileName, font.originalFontLink).toLowerCase();
+          const formatHint =
+            fmt === "ttf"
+              ? "truetype"
+              : fmt === "otf"
+              ? "opentype"
+              : fmt === "eot"
+              ? "embedded-opentype"
+              : fmt;
+          const cssSnippet = `@font-face {\n  font-family: '${font.fontName}';\n  src: url('${font.originalFontLink}') format('${formatHint}');\n  font-weight: normal;\n  font-style: normal;\n  font-display: swap;\n}`;
+          copyTextToClipboard(cssSnippet, "@font-face CSS copied");
+          const iconEl = btn.querySelector(".material-symbols-rounded");
+          if (iconEl) {
+            iconEl.textContent = "check";
+            setTimeout(() => {
+              iconEl.textContent = "code";
+            }, 1500);
+          }
+        }
+      });
+
+      // Display Payload Results
+      function displayResults(payload) {
+        currentFonts = Array.isArray(payload.fonts) ? payload.fonts : [];
+        currentScannedUrl = payload.url || "";
+        activeFormatFilter = "ALL";
+        filterFontsInput.value = "";
+
+        idleState.classList.add("hidden");
+        errorSection.classList.add("hidden");
+        resultsWorkspace.classList.remove("hidden");
+
+        fontCountBadge.textContent = `${currentFonts.length} ${
+          currentFonts.length === 1 ? "font" : "fonts"
+        }`;
+        scannedUrlLink.href = currentScannedUrl;
+        scannedUrlText.textContent = currentScannedUrl;
+
+        registerFontFaces(currentFonts);
+        renderFormatBreakdown(currentFonts);
+        renderFontCards();
+      }
+
+      // Show Error State
+      function displayError(title, message) {
+        loadingSection.classList.add("hidden");
+        idleState.classList.add("hidden");
+        errorTitle.textContent = title;
+        errorMessage.textContent = message;
+        errorSection.classList.remove("hidden");
+      }
+
+      // Execute Inspection Against Cloudflare Worker
+      async function inspectWebsite(rawUrl) {
+        let normalizedTarget;
+        try {
+          normalizedTarget = normalizeUrl(rawUrl);
+          targetUrlInput.value = normalizedTarget;
+        } catch {
+          displayError("Invalid website URL", "Please enter a valid http or https website address.");
+          return;
+        }
+
+        const workerBase = getWorkerUrl();
+        if (workerBase.includes("your-subdomain.workers.dev")) {
+          toggleConfigPanel(true);
+          displayError(
+            "Worker endpoint not configured",
+            "Set your deployed Cloudflare Worker URL in the endpoint panel above, or click 'sample' in the top bar to preview the interface."
+          );
+          return;
+        }
+
+        errorSection.classList.add("hidden");
+        idleState.classList.add("hidden");
+        loadingText.textContent = `Inspecting ${new URL(normalizedTarget).hostname}...`;
+        loadingSection.classList.remove("hidden");
+        inspectBtn.disabled = true;
+
+        try {
+          const endpoint = `${workerBase}/?url=${encodeURIComponent(normalizedTarget)}`;
+          const response = await fetch(endpoint, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          });
+
+          let data = null;
+          try {
+            data = await response.json();
+          } catch {
+            // Non-JSON response
+          }
+
+          if (!response.ok) {
+            if (response.status === 403) {
+              throw new Error(
+                "Access denied (403). Your Worker restricts requests to https://fergassss1.github.io."
+              );
+            }
+            throw new Error(
+              (data && data.error) || `Worker responded with HTTP ${response.status}.`
+            );
+          }
+
+          loadingSection.classList.add("hidden");
+          displayResults(data);
+        } catch (err) {
+          const isNetworkOrCors =
+            err instanceof TypeError && /fetch/i.test(err.message);
+          displayError(
+            "Inspection failed",
+            isNetworkOrCors
+              ? "Could not reach the Cloudflare Worker. Check that your Worker URL is correct and that you are running from https://fergassss1.github.io."
+              : err.message
+          );
+        } finally {
+          inspectBtn.disabled = false;
+        }
+      }
+
+      // Event Listeners
+      inspectForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (!targetUrlInput.value.trim()) return;
+        inspectWebsite(targetUrlInput.value);
+      });
+
+      targetUrlInput.addEventListener("input", () => {
+        const hasVal = targetUrlInput.value.length > 0;
+        clearUrlBtn.classList.toggle("hidden", !hasVal);
+        clearUrlBtn.classList.toggle("inline-flex", hasVal);
+      });
+
+      clearUrlBtn.addEventListener("click", () => {
+        targetUrlInput.value = "";
+        clearUrlBtn.classList.add("hidden");
+        clearUrlBtn.classList.remove("inline-flex");
+        targetUrlInput.focus();
+      });
+
+      document.querySelectorAll(".quick-url-pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const url = btn.getAttribute("data-quick-url");
+          targetUrlInput.value = url;
+          clearUrlBtn.classList.remove("hidden");
+          clearUrlBtn.classList.add("inline-flex");
+          inspectWebsite(url);
+        });
+      });
+
+      demoBtn.addEventListener("click", () => {
+        targetUrlInput.value = SAMPLE_RESPONSE.url;
+        clearUrlBtn.classList.remove("hidden");
+        clearUrlBtn.classList.add("inline-flex");
+        loadingSection.classList.add("hidden");
+        displayResults(SAMPLE_RESPONSE);
+        showSnackbar("Loaded sample font inspection");
+      });
+
+      // Live Specimen Text & Font Size Controls
+      previewTextInput.addEventListener("input", () => {
+        const newText =
+          previewTextInput.value.trim() ||
+          "The quick brown fox jumps over the lazy dog 0123456789";
+        document.querySelectorAll(".specimen-box").forEach((box) => {
+          box.textContent = newText;
+        });
+      });
+
+      fontSizeSlider.addEventListener("input", () => {
+        const sizePx = `${fontSizeSlider.value}px`;
+        fontSizeLabel.textContent = sizePx;
+        document.querySelectorAll(".specimen-box").forEach((box) => {
+          box.style.fontSize = sizePx;
+        });
+      });
+
+      filterFontsInput.addEventListener("input", () => {
+        renderFontCards();
+      });
+
+      // Boot
+      initTheme();
+      initWorkerConfig();
+    })();
+  </script>
+</body>
+</html>
