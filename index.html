@@ -37,6 +37,8 @@
       --md-sys-color-on-primary-container: #380D00;
       --md-sys-color-secondary-container: #FFDEC9;
       --md-sys-color-on-secondary-container: #2D1609;
+      --md-sys-color-tertiary-container: #F5E0A3;
+      --md-sys-color-on-tertiary-container: #241A00;
       --md-sys-color-on-surface: #261812;
       --md-sys-color-on-surface-variant: #574238;
       --md-sys-color-outline: #8A7165;
@@ -44,7 +46,7 @@
       --md-sys-color-error-container: #FFDAD6;
       --md-sys-color-on-error-container: #410002;
       --md-sys-color-error: #BA1A1A;
-      --md-sys-shadow: 0 6px 24px -6px rgba(138, 63, 29, 0.12);
+      --md-sys-shadow: 0 8px 28px -8px rgba(138, 63, 29, 0.14);
     }
 
     html.dark {
@@ -61,6 +63,8 @@
       --md-sys-color-on-primary-container: #FFDBCF;
       --md-sys-color-secondary-container: #553F33;
       --md-sys-color-on-secondary-container: #FFDBCF;
+      --md-sys-color-tertiary-container: #4F4416;
+      --md-sys-color-on-tertiary-container: #F5E0A3;
       --md-sys-color-on-surface: #F6DFD5;
       --md-sys-color-on-surface-variant: #DBBFA9;
       --md-sys-color-outline: #A38B7D;
@@ -68,7 +72,7 @@
       --md-sys-color-error-container: #93000A;
       --md-sys-color-on-error-container: #FFDAD6;
       --md-sys-color-error: #FFB4AB;
-      --md-sys-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.45);
+      --md-sys-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.5);
     }
 
     * {
@@ -120,10 +124,6 @@
       border: 1px solid var(--md-sys-color-outline-variant);
     }
 
-    .m3-surface-high {
-      background-color: var(--md-sys-color-surface-container-high);
-    }
-
     .m3-primary-btn {
       background-color: var(--md-sys-color-primary);
       color: var(--md-sys-color-on-primary);
@@ -150,13 +150,18 @@
       transition: transform 0.16s cubic-bezier(0.2, 0, 0, 1), background-color 0.16s ease;
     }
 
-    .m3-tonal-btn:hover {
+    .m3-tonal-btn:hover:not(:disabled) {
       background-color: var(--md-sys-color-primary-container);
       color: var(--md-sys-color-on-primary-container);
     }
 
-    .m3-tonal-btn:active {
+    .m3-tonal-btn:active:not(:disabled) {
       transform: scale(0.97);
+    }
+
+    .m3-tonal-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     .m3-icon-btn {
@@ -285,7 +290,7 @@
       color: var(--md-sys-color-surface);
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-      transform: translateY(120%);
+      transform: translateY(130%);
       opacity: 0;
       transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease;
     }
@@ -294,14 +299,22 @@
       transform: translateY(0);
       opacity: 1;
     }
+
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-icon {
+      animation: spin-slow 1.1s linear infinite;
+    }
   </style>
 </head>
 <body class="antialiased selection:bg-[#FF5A1F]/20">
-  <!-- Dynamic injected @font-face rules container -->
+  <!-- Dynamic injected @font-face rules -->
   <style id="dynamic-font-faces"></style>
 
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-    <!-- Top App Bar: Plain lowercase title only (no wordmark, no logo, no emojis) -->
+    <!-- Top App Bar: Plain lowercase title only (no logo, no wordmark, no emojis) -->
     <header class="flex items-center justify-between gap-4 mb-8 sm:mb-10">
       <a
         href="./"
@@ -313,7 +326,7 @@
 
       <div class="flex items-center gap-2.5">
         <button
-          id="demoBtn"
+          id="sampleBtn"
           type="button"
           class="m3-tonal-btn px-4 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
           title="Load sample font inspection results"
@@ -323,11 +336,11 @@
         </button>
 
         <button
-          id="settingsToggleBtn"
+          id="endpointToggleBtn"
           type="button"
           class="m3-icon-btn px-4 py-2.5 rounded-full text-sm font-semibold inline-flex items-center gap-2 cursor-pointer"
           aria-expanded="false"
-          aria-controls="workerConfigPanel"
+          aria-controls="endpointDrawer"
           title="Configure Cloudflare Worker endpoint"
         >
           <span class="material-symbols-rounded text-[19px]">settings</span>
@@ -353,7 +366,7 @@
 
     <!-- Collapsible Worker Endpoint Configuration Drawer -->
     <section
-      id="workerConfigPanel"
+      id="endpointDrawer"
       class="hidden mb-6 p-5 sm:p-6 rounded-[28px] m3-surface-low transition-all"
     >
       <div class="flex items-start justify-between gap-4 mb-3">
@@ -362,20 +375,20 @@
             Cloudflare Worker Endpoint
           </h2>
           <p class="text-sm mt-0.5" style="color: var(--md-sys-color-on-surface-variant);">
-            Enter your deployed <span class="font-mono-code text-xs">.workers.dev</span> URL. Saved locally in your browser.
+            Save your deployed <span class="font-mono-code text-xs">.workers.dev</span> URL in localStorage. Used for both extraction and CORS-safe font proxy fallback.
           </p>
         </div>
         <button
-          id="closeConfigBtn"
+          id="closeEndpointDrawerBtn"
           type="button"
           class="m3-icon-btn w-9 h-9 rounded-full inline-flex items-center justify-center cursor-pointer shrink-0"
-          aria-label="Close endpoint configuration"
+          aria-label="Close endpoint drawer"
         >
           <span class="material-symbols-rounded text-[18px]">close</span>
         </button>
       </div>
 
-      <form id="workerConfigForm" class="flex flex-col sm:flex-row gap-3 mt-4">
+      <form id="endpointConfigForm" class="flex flex-col sm:flex-row gap-3 mt-4">
         <input
           id="workerUrlInput"
           type="url"
@@ -398,14 +411,14 @@
       </form>
     </section>
 
-    <!-- Hero Search Section -->
+    <!-- Search Bar Section -->
     <section class="mb-8">
-      <form id="inspectForm" class="m3-pill-input rounded-full p-2 pl-5 sm:pl-6 flex items-center gap-2 sm:gap-3">
+      <form id="extractForm" class="m3-pill-input rounded-full p-2 pl-5 sm:pl-6 flex items-center gap-2 sm:gap-3">
         <span
           class="material-symbols-rounded text-[22px] shrink-0"
           style="color: var(--md-sys-color-primary);"
         >
-          search
+          language
         </span>
 
         <input
@@ -414,7 +427,7 @@
           inputmode="url"
           autocomplete="url"
           spellcheck="false"
-          placeholder="Paste a website URL to extract fonts (e.g. stripe.com)"
+          placeholder="Enter a website URL to extract fonts (e.g. stripe.com)"
           aria-label="Target website URL"
           class="w-full bg-transparent outline-none text-base sm:text-lg py-2.5 placeholder:opacity-60"
           style="color: var(--md-sys-color-on-surface);"
@@ -432,19 +445,19 @@
         </button>
 
         <button
-          id="inspectBtn"
+          id="extractBtn"
           type="submit"
           class="m3-primary-btn px-5 sm:px-7 py-3.5 rounded-full font-semibold text-sm sm:text-base inline-flex items-center gap-2 cursor-pointer shrink-0"
         >
-          <span>Inspect</span>
-          <span class="material-symbols-rounded text-[20px]">arrow_forward</span>
+          <span class="material-symbols-rounded text-[20px]">search</span>
+          <span>extract</span>
         </button>
       </form>
 
-      <!-- Quick Example Pills -->
+      <!-- Quick Try Pills -->
       <div class="flex flex-wrap items-center gap-2 mt-3.5 px-2">
         <span class="text-xs font-medium" style="color: var(--md-sys-color-on-surface-variant);">
-          Try:
+          Quick URLs:
         </span>
         <button
           type="button"
@@ -469,10 +482,10 @@
         </button>
         <button
           type="button"
-          data-quick-url="https://fonts.google.com"
+          data-quick-url="https://amazon.com/music"
           class="quick-url-pill m3-tonal-btn px-3 py-1 rounded-full text-xs font-medium cursor-pointer"
         >
-          fonts.google.com
+          amazon.com/music
         </button>
       </div>
     </section>
@@ -483,13 +496,13 @@
         <div class="flex items-center justify-between gap-3 mb-3">
           <div class="flex items-center gap-2.5">
             <span
-              class="material-symbols-rounded animate-spin"
+              class="material-symbols-rounded spin-icon"
               style="color: var(--md-sys-color-primary);"
             >
-              refresh
+              autorenew
             </span>
             <span id="loadingText" class="text-sm font-semibold">
-              Scanning stylesheets and @font-face declarations...
+              Extracting stylesheets, font faces, and binary metadata...
             </span>
           </div>
           <span class="text-xs font-mono-code" style="color: var(--md-sys-color-on-surface-variant);">
@@ -518,7 +531,7 @@
         </span>
         <div class="flex-1 min-w-0">
           <h3 id="errorTitle" class="font-bold text-base">
-            Could not inspect website
+            Extraction failed
           </h3>
           <p id="errorMessage" class="text-sm mt-1 opacity-90 leading-relaxed"></p>
           <div class="mt-3 flex flex-wrap gap-2">
@@ -531,14 +544,14 @@
                 color: var(--md-sys-color-error-container);
               "
             >
-              Check Worker endpoint
+              Configure Worker endpoint
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Results Workspace (Hidden until results or sample loaded) -->
+    <!-- Results Workspace -->
     <main id="resultsWorkspace" class="hidden">
       <!-- Summary & Filter Bar -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 p-5 rounded-[28px] m3-surface-low">
@@ -566,11 +579,11 @@
               <span class="material-symbols-rounded text-[15px]">open_in_new</span>
             </a>
           </div>
-          <!-- Format Breakdown Pills -->
-          <div id="formatBreakdown" class="flex flex-wrap items-center gap-1.5 mt-2.5"></div>
+          <!-- Format & Variable Filter Chips -->
+          <div id="filterChipsContainer" class="flex flex-wrap items-center gap-1.5 mt-3"></div>
         </div>
 
-        <!-- Search/Filter inside discovered fonts -->
+        <!-- Text Search Filter -->
         <div class="flex items-center gap-2 shrink-0">
           <div
             class="flex items-center gap-2 px-3.5 py-2 rounded-full"
@@ -585,8 +598,8 @@
             <input
               id="filterFontsInput"
               type="text"
-              placeholder="Filter results..."
-              class="bg-transparent outline-none text-xs sm:text-sm w-36 sm:w-44"
+              placeholder="Filter family or selector..."
+              class="bg-transparent outline-none text-xs sm:text-sm w-40 sm:w-48"
               style="color: var(--md-sys-color-on-surface);"
             />
           </div>
@@ -602,7 +615,7 @@
           <input
             id="previewTextInput"
             type="text"
-            value="The quick brown fox jumps over the lazy dog 0123456789"
+            value="The quick brown fox jumps over the lazy dog"
             placeholder="Type custom preview specimen text..."
             aria-label="Preview specimen text"
             class="w-full px-4 py-2.5 rounded-2xl text-sm outline-none"
@@ -632,7 +645,7 @@
           />
           <span
             id="fontSizeLabel"
-            class="font-mono-code text-xs font-semibold w-11 text-right px-2 py-1 rounded-lg"
+            class="font-mono-code text-xs font-semibold w-12 text-right px-2 py-1 rounded-lg"
             style="
               background-color: var(--md-sys-color-surface);
               color: var(--md-sys-color-on-surface);
@@ -643,7 +656,7 @@
         </div>
       </div>
 
-      <!-- Empty Results State -->
+      <!-- Empty Filter State -->
       <div id="emptyResultsBox" class="hidden p-10 rounded-[28px] m3-surface-low text-center">
         <span
           class="material-symbols-rounded text-[40px] mb-2"
@@ -653,7 +666,7 @@
         </span>
         <h3 class="text-base font-bold">No matching fonts found</h3>
         <p class="text-sm mt-1 max-w-md mx-auto" style="color: var(--md-sys-color-on-surface-variant);">
-          Try clearing your filter or inspecting another URL. Sites that load fonts strictly via client-side JavaScript after hydration may not expose static font links.
+          Try clearing your active filter chip or search query to view all extracted fonts.
         </p>
       </div>
 
@@ -662,7 +675,7 @@
     </main>
 
     <!-- Initial Idle Hint -->
-    <section id="idleState" class="py-12 sm:py-16 text-center px-4">
+    <section id="idleState" class="py-14 sm:py-20 text-center px-4">
       <div
         class="w-16 h-16 rounded-[24px] mx-auto mb-4 flex items-center justify-center"
         style="
@@ -673,29 +686,38 @@
         <span class="material-symbols-rounded text-[30px]">font_download</span>
       </div>
       <h1 class="text-xl sm:text-2xl font-bold tracking-tight">
-        Inspect and preview web fonts from any URL
+        Extract, inspect, and convert web fonts from any URL
       </h1>
       <p
         class="text-sm sm:text-base mt-2 max-w-lg mx-auto leading-relaxed"
         style="color: var(--md-sys-color-on-surface-variant);"
       >
-        Paste any website link above to extract its declared font families, inspect original font files, test live specimens, and copy ready-to-use CSS.
+        Paste a website URL above to discover declared font families, detect OpenType variable axes, test live specimens, and convert WOFF2 files to TTF or OTF in your browser.
       </p>
     </section>
   </div>
 
-  <!-- Material Snackbar Feedback -->
+  <!-- Material Snackbar Notification -->
   <div
     id="snackbar"
     class="m3-snackbar fixed bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 text-sm font-medium inline-flex items-center gap-2.5 z-50 pointer-events-none"
     role="status"
     aria-live="polite"
   >
-    <span class="material-symbols-rounded text-[18px]" style="color: var(--md-sys-color-primary);">
+    <span id="snackbarIcon" class="material-symbols-rounded text-[18px]" style="color: var(--md-sys-color-primary);">
       check_circle
     </span>
     <span id="snackbarText">Copied to clipboard</span>
   </div>
+
+  <!-- Client-side WOFF2 WASM Decompressor (Google wawoff2) -->
+  <script>
+    window.Module = window.Module || {};
+    window._wawoff2Ready = new Promise((resolve) => {
+      window.Module.onRuntimeInitialized = () => resolve(window.Module);
+    });
+  </script>
+  <script src="https://unpkg.com/wawoff2@2.0.1/build/decompress_binding.js" async></script>
 
   <script>
     (() => {
@@ -705,8 +727,9 @@
       };
 
       const DEFAULT_WORKER_URL = "https://fontanizer.your-subdomain.workers.dev";
+      const DEFAULT_SPECIMEN = "The quick brown fox jumps over the lazy dog";
 
-      // Sample payload matching the Cloudflare Worker output schema
+      // Sample dataset with real, CORS-accessible font binaries so variable inspection & WOFF2->TTF/OTF work immediately
       const SAMPLE_RESPONSE = {
         url: "https://fonts.google.com/",
         userAgent:
@@ -714,44 +737,64 @@
         count: 3,
         fonts: [
           {
-            fontName: "Google Sans Flex",
-            originalFontLink:
-              "https://fonts.gstatic.com/s/googlesansflex/v1/sample-google-sans-flex.woff2",
-            fontFileName: "sample-google-sans-flex.woff2",
-          },
-          {
-            fontName: "Google Sans Code",
-            originalFontLink:
-              "https://fonts.gstatic.com/s/googlesanscode/v1/sample-google-sans-code.woff2",
-            fontFileName: "sample-google-sans-code.woff2",
-          },
-          {
             fontName: "Fraunces",
+            family: "Fraunces",
+            weight: "100 900",
+            style: "normal",
+            format: "woff2",
             originalFontLink:
               "https://fonts.gstatic.com/s/fraunces/v31/6NUh8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7hzFUPJH58nib1603gg7S2nfgRYIctxujDg.woff2",
-            fontFileName:
-              "6NUh8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7hzFUPJH58nib1603gg7S2nfgRYIctxujDg.woff2",
+            url:
+              "https://fonts.gstatic.com/s/fraunces/v31/6NUh8FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0K7iN7hzFUPJH58nib1603gg7S2nfgRYIctxujDg.woff2",
+            fontFileName: "Fraunces-Variable.woff2",
+            usage: ["@font-face", "h1.hero-display", ".editorial-heading", "blockquote.quote"],
+          },
+          {
+            fontName: "Inter",
+            family: "Inter",
+            weight: "100 900",
+            style: "normal",
+            format: "woff2",
+            originalFontLink:
+              "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2",
+            url:
+              "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2",
+            fontFileName: "Inter-Variable.woff2",
+            usage: ["@font-face", "body", ".nav-item", ".card-body", "button"],
+          },
+          {
+            fontName: "JetBrains Mono",
+            family: "JetBrains Mono",
+            weight: "400",
+            style: "normal",
+            format: "woff2",
+            originalFontLink:
+              "https://fonts.gstatic.com/s/jetbrainsmono/v20/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2",
+            url:
+              "https://fonts.gstatic.com/s/jetbrainsmono/v20/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2",
+            fontFileName: "JetBrainsMono-Regular.woff2",
+            usage: ["@font-face", "pre", "code", ".token-snippet"],
           },
         ],
       };
 
-      // DOM References
+      // DOM Elements
       const htmlEl = document.documentElement;
       const themeToggleBtn = document.getElementById("themeToggleBtn");
       const themeIcon = document.getElementById("themeIcon");
 
-      const settingsToggleBtn = document.getElementById("settingsToggleBtn");
-      const workerConfigPanel = document.getElementById("workerConfigPanel");
-      const closeConfigBtn = document.getElementById("closeConfigBtn");
-      const workerConfigForm = document.getElementById("workerConfigForm");
+      const endpointToggleBtn = document.getElementById("endpointToggleBtn");
+      const endpointDrawer = document.getElementById("endpointDrawer");
+      const closeEndpointDrawerBtn = document.getElementById("closeEndpointDrawerBtn");
+      const endpointConfigForm = document.getElementById("endpointConfigForm");
       const workerUrlInput = document.getElementById("workerUrlInput");
       const endpointStatusDot = document.getElementById("endpointStatusDot");
 
-      const inspectForm = document.getElementById("inspectForm");
+      const extractForm = document.getElementById("extractForm");
       const targetUrlInput = document.getElementById("targetUrlInput");
       const clearUrlBtn = document.getElementById("clearUrlBtn");
-      const inspectBtn = document.getElementById("inspectBtn");
-      const demoBtn = document.getElementById("demoBtn");
+      const extractBtn = document.getElementById("extractBtn");
+      const sampleBtn = document.getElementById("sampleBtn");
 
       const loadingSection = document.getElementById("loadingSection");
       const loadingText = document.getElementById("loadingText");
@@ -765,7 +808,7 @@
       const fontCountBadge = document.getElementById("fontCountBadge");
       const scannedUrlLink = document.getElementById("scannedUrlLink");
       const scannedUrlText = document.getElementById("scannedUrlText");
-      const formatBreakdown = document.getElementById("formatBreakdown");
+      const filterChipsContainer = document.getElementById("filterChipsContainer");
       const filterFontsInput = document.getElementById("filterFontsInput");
 
       const previewTextInput = document.getElementById("previewTextInput");
@@ -777,15 +820,17 @@
       const dynamicFontFacesStyle = document.getElementById("dynamic-font-faces");
 
       const snackbar = document.getElementById("snackbar");
+      const snackbarIcon = document.getElementById("snackbarIcon");
       const snackbarText = document.getElementById("snackbarText");
 
-      // State
+      // Application State
       let currentFonts = [];
       let currentScannedUrl = "";
-      let activeFormatFilter = "ALL";
+      let activeChipFilter = "ALL"; // ALL | WOFF2 | TTF | OTF | VARIABLE
       let snackbarTimeout = null;
+      const createdBlobUrls = [];
 
-      // Initialize Theme
+      // Theme Setup
       function initTheme() {
         const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -808,17 +853,20 @@
         applyTheme(!htmlEl.classList.contains("dark"));
       });
 
-      // Worker URL Management
+      // Worker Endpoint Configuration
       function getWorkerUrl() {
         return (localStorage.getItem(STORAGE_KEYS.WORKER_URL) || DEFAULT_WORKER_URL).replace(/\/+$/, "");
       }
 
-      function updateEndpointIndicator() {
+      function isWorkerConfigured() {
         const url = getWorkerUrl();
-        const isPlaceholder = url.includes("your-subdomain.workers.dev");
-        endpointStatusDot.style.backgroundColor = isPlaceholder
-          ? "#F59E0B"
-          : "var(--md-sys-color-primary)";
+        return Boolean(url) && !url.includes("your-subdomain.workers.dev");
+      }
+
+      function updateEndpointIndicator() {
+        endpointStatusDot.style.backgroundColor = isWorkerConfigured()
+          ? "var(--md-sys-color-primary)"
+          : "#F59E0B";
       }
 
       function initWorkerConfig() {
@@ -826,21 +874,21 @@
         updateEndpointIndicator();
       }
 
-      function toggleConfigPanel(forceState) {
-        const isHidden = workerConfigPanel.classList.contains("hidden");
+      function toggleEndpointDrawer(forceState) {
+        const isHidden = endpointDrawer.classList.contains("hidden");
         const shouldOpen = typeof forceState === "boolean" ? forceState : isHidden;
-        workerConfigPanel.classList.toggle("hidden", !shouldOpen);
-        settingsToggleBtn.setAttribute("aria-expanded", String(shouldOpen));
+        endpointDrawer.classList.toggle("hidden", !shouldOpen);
+        endpointToggleBtn.setAttribute("aria-expanded", String(shouldOpen));
         if (shouldOpen) {
           workerUrlInput.focus();
         }
       }
 
-      settingsToggleBtn.addEventListener("click", () => toggleConfigPanel());
-      closeConfigBtn.addEventListener("click", () => toggleConfigPanel(false));
-      openEndpointFromErrorBtn.addEventListener("click", () => toggleConfigPanel(true));
+      endpointToggleBtn.addEventListener("click", () => toggleEndpointDrawer());
+      closeEndpointDrawerBtn.addEventListener("click", () => toggleEndpointDrawer(false));
+      openEndpointFromErrorBtn.addEventListener("click", () => toggleEndpointDrawer(true));
 
-      workerConfigForm.addEventListener("submit", (e) => {
+      endpointConfigForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const raw = workerUrlInput.value.trim();
         if (!raw) return;
@@ -849,14 +897,14 @@
           localStorage.setItem(STORAGE_KEYS.WORKER_URL, normalized);
           workerUrlInput.value = normalized;
           updateEndpointIndicator();
-          toggleConfigPanel(false);
-          showSnackbar("Worker endpoint saved");
+          toggleEndpointDrawer(false);
+          showSnackbar("Worker endpoint saved", "check_circle");
         } catch {
-          showSnackbar("Please enter a valid Worker URL");
+          showSnackbar("Please enter a valid Worker URL", "error");
         }
       });
 
-      // Helpers
+      // Utility Functions
       function normalizeUrl(input) {
         let trimmed = input.trim();
         if (!/^https?:\/\//i.test(trimmed)) {
@@ -865,11 +913,14 @@
         return new URL(trimmed).toString();
       }
 
-      function getFontFormat(fileName, link) {
-        const source = `${fileName || ""} ${link || ""}`;
+      function getFontFormat(font) {
+        if (font.format && font.format !== "unknown") {
+          return String(font.format).toUpperCase();
+        }
+        const source = `${font.fontFileName || ""} ${font.originalFontLink || font.url || ""}`;
         const match = source.match(/\.(woff2|woff|ttf|otf|eot|svg)(?:$|[?#\s])/i);
         if (match) return match[1].toUpperCase();
-        if (/fonts\.gstatic\.com/i.test(link || "")) return "WOFF2";
+        if (/fonts\.gstatic\.com/i.test(source)) return "WOFF2";
         return "FONT";
       }
 
@@ -879,13 +930,14 @@
         return div.innerHTML;
       }
 
-      function showSnackbar(message) {
+      function showSnackbar(message, icon = "check_circle") {
+        snackbarIcon.textContent = icon;
         snackbarText.textContent = message;
         snackbar.classList.add("show");
         clearTimeout(snackbarTimeout);
         snackbarTimeout = setTimeout(() => {
           snackbar.classList.remove("show");
-        }, 2600);
+        }, 2800);
       }
 
       function copyTextToClipboard(text, successMessage = "Copied to clipboard") {
@@ -897,94 +949,299 @@
         textarea.select();
         try {
           document.execCommand("copy");
-          showSnackbar(successMessage);
+          showSnackbar(successMessage, "check_circle");
         } catch {
-          showSnackbar("Unable to copy text");
+          showSnackbar("Unable to copy text", "error");
         }
         document.body.removeChild(textarea);
       }
 
-      // Dynamic @font-face Injection + Load Status Verification
-      function registerFontFaces(fonts) {
-        const cssRules = [];
-        fonts.forEach((font, idx) => {
-          const alias = `FontanizerPreview_${idx}`;
-          font._previewAlias = alias;
-          const safeUrl = font.originalFontLink.replace(/"/g, '\\"');
-          cssRules.push(`
-            @font-face {
-              font-family: "${alias}";
-              src: url("${safeUrl}");
-              font-display: swap;
-            }
-          `);
-        });
-        dynamicFontFacesStyle.textContent = cssRules.join("\n");
-
-        // Probe loadability via FontFace API so we can flag hotlink/CORS blocked fonts cleanly
-        fonts.forEach((font, idx) => {
-          const statusBadge = document.getElementById(`preview-status-${idx}`);
-          if (!("FontFace" in window)) return;
-
-          try {
-            const tester = new FontFace(font._previewAlias, `url("${font.originalFontLink}")`);
-            tester
-              .load()
-              .then((loadedFace) => {
-                document.fonts.add(loadedFace);
-                if (statusBadge) {
-                  statusBadge.classList.add("hidden");
-                }
-              })
-              .catch(() => {
-                if (statusBadge) {
-                  statusBadge.classList.remove("hidden");
-                }
-              });
-          } catch {
-            if (statusBadge) {
-              statusBadge.classList.remove("hidden");
-            }
-          }
-        });
+      function cleanupBlobUrls() {
+        while (createdBlobUrls.length > 0) {
+          URL.revokeObjectURL(createdBlobUrls.pop());
+        }
       }
 
-      // Render Format Breakdown Filter Pills
-      function renderFormatBreakdown(fonts) {
-        const counts = fonts.reduce((acc, f) => {
-          const fmt = getFontFormat(f.fontFileName, f.originalFontLink);
-          acc[fmt] = (acc[fmt] || 0) + 1;
-          return acc;
-        }, {});
-
-        const formats = Object.keys(counts);
-        if (formats.length === 0) {
-          formatBreakdown.innerHTML = "";
-          return;
+      // Fetch font binary with automatic fallback to Worker /proxy?url=
+      async function fetchFontBinary(fontUrl) {
+        try {
+          const directRes = await fetch(fontUrl, { mode: "cors" });
+          if (directRes.ok) {
+            return await directRes.arrayBuffer();
+          }
+        } catch {
+          // Direct CORS fetch blocked; fall back to Worker proxy
         }
 
-        const pills = [
-          `<button type="button" data-format="ALL" class="format-filter-pill px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors" style="${
-            activeFormatFilter === "ALL"
-              ? "background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);"
-              : "background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface-variant); border: 1px solid var(--md-sys-color-outline-variant);"
-          }">All (${fonts.length})</button>`,
-          ...formats.map((fmt) => {
-            const active = activeFormatFilter === fmt;
-            return `<button type="button" data-format="${fmt}" class="format-filter-pill px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors" style="${
-              active
-                ? "background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container);"
-                : "background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface-variant); border: 1px solid var(--md-sys-color-outline-variant);"
-            }">${fmt} (${counts[fmt]})</button>`;
-          }),
+        if (!isWorkerConfigured()) {
+          throw new Error("CORS blocked direct binary fetch and Worker endpoint is not configured.");
+        }
+
+        const proxyUrl = `${getWorkerUrl()}/proxy?url=${encodeURIComponent(fontUrl)}`;
+        const proxyRes = await fetch(proxyUrl);
+        if (!proxyRes.ok) {
+          throw new Error(`Proxy fetch failed (${proxyRes.status})`);
+        }
+        return await proxyRes.arrayBuffer();
+      }
+
+      // Decompress WOFF2 to SFNT bytes via wawoff2 WASM
+      async function decompressWoff2ToSfnt(arrayBuffer) {
+        const mod = await Promise.race([
+          window._wawoff2Ready,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("WOFF2 decoder timed out")), 12000)
+          ),
+        ]);
+
+        if (!mod || typeof mod.decompress !== "function") {
+          throw new Error("WOFF2 WASM decompressor unavailable");
+        }
+
+        const inputBytes = new Uint8Array(arrayBuffer);
+        const decompressed = mod.decompress(inputBytes);
+        if (!decompressed || decompressed.length < 12) {
+          throw new Error("Failed to unpack WOFF2 binary");
+        }
+        return decompressed instanceof Uint8Array
+          ? decompressed
+          : new Uint8Array(decompressed);
+      }
+
+      // Parse SFNT (TTF/OTF) Table Directory to detect `fvar` variable axes & outline format (TTF vs OTF)
+      function inspectSfntBytes(sfntBytes) {
+        const view = new DataView(
+          sfntBytes.buffer,
+          sfntBytes.byteOffset,
+          sfntBytes.byteLength
+        );
+
+        if (view.byteLength < 12) {
+          return { isVariable: false, axes: [], targetExt: "ttf" };
+        }
+
+        const sfntVersion = view.getUint32(0, false);
+        // 0x4F54544F === 'OTTO' (CFF OpenType)
+        let isOpenTypeCff = sfntVersion === 0x4f54544f;
+        const numTables = view.getUint16(4, false);
+
+        let fvarOffset = 0;
+        let fvarLength = 0;
+
+        for (let i = 0; i < numTables; i++) {
+          const entryOffset = 12 + i * 16;
+          if (entryOffset + 16 > view.byteLength) break;
+
+          const tag = String.fromCharCode(
+            view.getUint8(entryOffset),
+            view.getUint8(entryOffset + 1),
+            view.getUint8(entryOffset + 2),
+            view.getUint8(entryOffset + 3)
+          );
+
+          if (tag === "CFF " || tag === "CFF2") {
+            isOpenTypeCff = true;
+          } else if (tag === "fvar") {
+            fvarOffset = view.getUint32(entryOffset + 8, false);
+            fvarLength = view.getUint32(entryOffset + 12, false);
+          }
+        }
+
+        const axes = [];
+        if (fvarOffset > 0 && fvarOffset + 16 <= view.byteLength) {
+          const axesArrayOffset = view.getUint16(fvarOffset + 4, false);
+          const axisCount = view.getUint16(fvarOffset + 8, false);
+          const axisSize = view.getUint16(fvarOffset + 10, false);
+
+          const start = fvarOffset + axesArrayOffset;
+          for (let a = 0; a < axisCount; a++) {
+            const recOffset = start + a * axisSize;
+            if (recOffset + 16 > view.byteLength) break;
+
+            const axisTag = String.fromCharCode(
+              view.getUint8(recOffset),
+              view.getUint8(recOffset + 1),
+              view.getUint8(recOffset + 2),
+              view.getUint8(recOffset + 3)
+            );
+            // OpenType Fixed 16.16 signed values
+            const minValue = Math.round((view.getInt32(recOffset + 4, false) / 65536) * 10) / 10;
+            const defaultValue = Math.round((view.getInt32(recOffset + 8, false) / 65536) * 10) / 10;
+            const maxValue = Math.round((view.getInt32(recOffset + 12, false) / 65536) * 10) / 10;
+
+            axes.push({
+              tag: axisTag.trim(),
+              min: minValue,
+              default: defaultValue,
+              max: maxValue,
+            });
+          }
+        }
+
+        return {
+          isVariable: fvarOffset > 0 && fvarLength > 0,
+          axes,
+          targetExt: isOpenTypeCff ? "otf" : "ttf",
+        };
+      }
+
+      // Inspect binary for each font (for variable detection, proxy preview fallback, and instant WOFF2 conversion)
+      async function inspectAllFontBinaries(fonts) {
+        const tasks = fonts.map(async (font, idx) => {
+          const rawUrl = font.originalFontLink || font.url;
+          const fmt = getFontFormat(font);
+
+          try {
+            const buffer = await fetchFontBinary(rawUrl);
+            font._rawBuffer = buffer;
+
+            // Create a local Blob URL so @font-face renders reliably even when remote CDN blocks hotlinking
+            const mimeMap = {
+              WOFF2: "font/woff2",
+              WOFF: "font/woff",
+              TTF: "font/ttf",
+              OTF: "font/otf",
+            };
+            const blob = new Blob([buffer], { type: mimeMap[fmt] || "application/octet-stream" });
+            const blobUrl = URL.createObjectURL(blob);
+            createdBlobUrls.push(blobUrl);
+            font._blobUrl = blobUrl;
+
+            // Update injected @font-face rule to point at local blob URL for guaranteed rendering
+            updateSingleFontFaceRule(idx, font._previewAlias, blobUrl);
+
+            let sfntBytes = null;
+            if (fmt === "WOFF2") {
+              sfntBytes = await decompressWoff2ToSfnt(buffer);
+              font._sfntBytes = sfntBytes;
+            } else if (fmt === "TTF" || fmt === "OTF") {
+              sfntBytes = new Uint8Array(buffer);
+              font._sfntBytes = sfntBytes;
+            }
+
+            if (sfntBytes) {
+              const meta = inspectSfntBytes(sfntBytes);
+              font._isVariable = meta.isVariable;
+              font._axes = meta.axes;
+              font._convertedExt = meta.targetExt;
+            }
+          } catch {
+            // Leave binary metadata unavailable if both direct & proxy fetch fail
+            font._binaryUnavailable = true;
+          }
+
+          // Re-render filter chips & card badges progressively as each font completes inspection
+          renderFilterChips(currentFonts);
+          updateCardBinaryBadges(idx, font);
+        });
+
+        await Promise.allSettled(tasks);
+      }
+
+      function updateSingleFontFaceRule(idx, alias, sourceUrl) {
+        const safeUrl = sourceUrl.replace(/"/g, '\\"');
+        const marker = `/* font-face-${idx} */`;
+        const rule = `${marker}\n@font-face {\n  font-family: "${alias}";\n  src: url("${safeUrl}");\n  font-display: swap;\n}`;
+        const currentCss = dynamicFontFacesStyle.textContent;
+        const regex = new RegExp(`/\\* font-face-${idx} \\*/[\\s\\S]*?\\}`, "g");
+        if (regex.test(currentCss)) {
+          dynamicFontFacesStyle.textContent = currentCss.replace(regex, rule);
+        } else {
+          dynamicFontFacesStyle.textContent += `\n${rule}`;
+        }
+      }
+
+      function updateCardBinaryBadges(idx, font) {
+        const varSlot = document.getElementById(`var-badge-slot-${idx}`);
+        const convertBtn = document.getElementById(`convert-btn-${idx}`);
+
+        if (varSlot && font._isVariable) {
+          const axesSummary = (font._axes || [])
+            .map((a) => `${a.tag} ${a.min}–${a.max}`)
+            .join(", ");
+          varSlot.innerHTML = `
+            <span
+              class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide inline-flex items-center gap-1"
+              style="
+                background-color: var(--md-sys-color-tertiary-container);
+                color: var(--md-sys-color-on-tertiary-container);
+              "
+              title="${escapeHtml(axesSummary || "OpenType Variable Font")}"
+            >
+              <span class="material-symbols-rounded text-[13px]">tune</span>
+              <span>variable${axesSummary ? ` (${escapeHtml(axesSummary)})` : ""}</span>
+            </span>
+          `;
+        }
+
+        if (convertBtn && font._convertedExt) {
+          const labelSpan = convertBtn.querySelector(".convert-label");
+          if (labelSpan) {
+            labelSpan.textContent = `Convert to .${font._convertedExt}`;
+          }
+        }
+      }
+
+      // Register initial @font-face rules
+      function registerInitialFontFaces(fonts) {
+        const rules = fonts.map((font, idx) => {
+          const alias = `FontanizerSpecimen_${idx}`;
+          font._previewAlias = alias;
+          const rawUrl = (font.originalFontLink || font.url || "").replace(/"/g, '\\"');
+          return `/* font-face-${idx} */\n@font-face {\n  font-family: "${alias}";\n  src: url("${rawUrl}");\n  font-display: swap;\n}`;
+        });
+        dynamicFontFacesStyle.textContent = rules.join("\n");
+      }
+
+      // Filter Chips (All, WOFF2, TTF, OTF, Variable, etc.)
+      function renderFilterChips(fonts) {
+        const formatCounts = {};
+        let variableCount = 0;
+
+        fonts.forEach((f) => {
+          const fmt = getFontFormat(f);
+          formatCounts[fmt] = (formatCounts[fmt] || 0) + 1;
+          if (f._isVariable) variableCount += 1;
+        });
+
+        const standardOrder = ["WOFF2", "TTF", "OTF", "WOFF", "EOT", "SVG"];
+        const detectedFormats = Object.keys(formatCounts).sort((a, b) => {
+          const ia = standardOrder.indexOf(a);
+          const ib = standardOrder.indexOf(b);
+          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+        });
+
+        const chipStyle = (isActive) =>
+          isActive
+            ? "background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); border: 1px solid var(--md-sys-color-primary);"
+            : "background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface-variant); border: 1px solid var(--md-sys-color-outline-variant);";
+
+        const chips = [
+          `<button type="button" data-chip="ALL" class="filter-chip px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors" style="${chipStyle(
+            activeChipFilter === "ALL"
+          )}">All (${fonts.length})</button>`,
+          ...detectedFormats.map(
+            (fmt) =>
+              `<button type="button" data-chip="${fmt}" class="filter-chip px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors" style="${chipStyle(
+                activeChipFilter === fmt
+              )}">${fmt} (${formatCounts[fmt]})</button>`
+          ),
         ];
 
-        formatBreakdown.innerHTML = pills.join("");
+        if (variableCount > 0 || activeChipFilter === "VARIABLE") {
+          chips.push(
+            `<button type="button" data-chip="VARIABLE" class="filter-chip px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors inline-flex items-center gap-1" style="${chipStyle(
+              activeChipFilter === "VARIABLE"
+            )}"><span class="material-symbols-rounded text-[14px]">tune</span><span>Variable (${variableCount})</span></button>`
+          );
+        }
 
-        formatBreakdown.querySelectorAll(".format-filter-pill").forEach((btn) => {
+        filterChipsContainer.innerHTML = chips.join("");
+
+        filterChipsContainer.querySelectorAll(".filter-chip").forEach((btn) => {
           btn.addEventListener("click", () => {
-            activeFormatFilter = btn.getAttribute("data-format");
-            renderFormatBreakdown(currentFonts);
+            activeChipFilter = btn.getAttribute("data-chip");
+            renderFilterChips(currentFonts);
             renderFontCards();
           });
         });
@@ -993,20 +1250,24 @@
       // Render Font Cards
       function renderFontCards() {
         const query = filterFontsInput.value.trim().toLowerCase();
-        const previewText =
-          previewTextInput.value.trim() ||
-          "The quick brown fox jumps over the lazy dog 0123456789";
+        const specimenText = previewTextInput.value.trim() || DEFAULT_SPECIMEN;
         const fontSize = `${fontSizeSlider.value}px`;
 
         const filtered = currentFonts.filter((font) => {
-          const fmt = getFontFormat(font.fontFileName, font.originalFontLink);
-          const matchesFormat = activeFormatFilter === "ALL" || fmt === activeFormatFilter;
+          const fmt = getFontFormat(font);
+          const matchesChip =
+            activeChipFilter === "ALL" ||
+            (activeChipFilter === "VARIABLE" ? Boolean(font._isVariable) : fmt === activeChipFilter);
+
+          const usageJoined = Array.isArray(font.usage) ? font.usage.join(" ").toLowerCase() : "";
           const matchesQuery =
             !query ||
-            (font.fontName || "").toLowerCase().includes(query) ||
+            (font.fontName || font.family || "").toLowerCase().includes(query) ||
             (font.fontFileName || "").toLowerCase().includes(query) ||
-            (font.originalFontLink || "").toLowerCase().includes(query);
-          return matchesFormat && matchesQuery;
+            (font.originalFontLink || font.url || "").toLowerCase().includes(query) ||
+            usageJoined.includes(query);
+
+          return matchesChip && matchesQuery;
         });
 
         if (filtered.length === 0) {
@@ -1020,20 +1281,69 @@
         fontCardsGrid.innerHTML = filtered
           .map((font) => {
             const globalIdx = currentFonts.indexOf(font);
-            const fmt = getFontFormat(font.fontFileName, font.originalFontLink);
-            const safeName = escapeHtml(font.fontName || "Unknown Font");
-            const safeFileName = escapeHtml(font.fontFileName || "unknown-file");
-            const safeLink = escapeHtml(font.originalFontLink || "");
+            const fmt = getFontFormat(font);
+            const isWoff2 = fmt === "WOFF2";
+            const safeName = escapeHtml(font.fontName || font.family || "Unknown Font");
+            const safeFileName = escapeHtml(font.fontFileName || "font-file");
+            const safeLink = escapeHtml(font.originalFontLink || font.url || "");
+            const weight = escapeHtml(String(font.weight || "400"));
+            const style = escapeHtml(String(font.style || "normal"));
             const alias = font._previewAlias || "Google Sans Flex";
+
+            const axesSummary = (font._axes || [])
+              .map((a) => `${a.tag} ${a.min}–${a.max}`)
+              .join(", ");
+
+            const variableBadgeHtml = font._isVariable
+              ? `<span
+                  class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide inline-flex items-center gap-1"
+                  style="
+                    background-color: var(--md-sys-color-tertiary-container);
+                    color: var(--md-sys-color-on-tertiary-container);
+                  "
+                  title="${escapeHtml(axesSummary || "OpenType Variable Font")}"
+                >
+                  <span class="material-symbols-rounded text-[13px]">tune</span>
+                  <span>variable${axesSummary ? ` (${escapeHtml(axesSummary)})` : ""}</span>
+                </span>`
+              : "";
+
+            const convertTargetLabel = font._convertedExt
+              ? `Convert to .${font._convertedExt}`
+              : "Convert to TTF/OTF";
+
+            const usageList = Array.isArray(font.usage) && font.usage.length > 0 ? font.usage : [];
+            const usageHtml =
+              usageList.length > 0
+                ? `
+                  <details class="group pt-1">
+                    <summary class="list-none cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold select-none hover:opacity-80" style="color: var(--md-sys-color-on-surface-variant);">
+                      <span class="material-symbols-rounded text-[16px] transition-transform group-open:rotate-90">chevron_right</span>
+                      <span>CSS usage selectors (${usageList.length})</span>
+                    </summary>
+                    <div class="flex flex-wrap gap-1.5 mt-2.5 pl-1">
+                      ${usageList
+                        .map(
+                          (sel) =>
+                            `<span class="font-mono-code text-[11px] px-2.5 py-1 rounded-lg" style="background-color: var(--md-sys-color-surface); border: 1px solid var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface-variant);">${escapeHtml(
+                              sel
+                            )}</span>`
+                        )
+                        .join("")}
+                    </div>
+                  </details>
+                `
+                : "";
 
             return `
               <article class="m3-card p-5 sm:p-6 flex flex-col gap-4">
                 <!-- Card Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div class="flex flex-wrap items-center gap-2.5 min-w-0">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div class="flex flex-wrap items-center gap-2 min-w-0">
                     <h2 class="text-lg sm:text-xl font-bold truncate" style="color: var(--md-sys-color-on-surface);">
                       ${safeName}
                     </h2>
+
                     <span
                       class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide"
                       style="
@@ -1043,33 +1353,51 @@
                     >
                       ${fmt}
                     </span>
+
                     <span
-                      id="preview-status-${globalIdx}"
-                      class="hidden px-2.5 py-0.5 rounded-full text-[11px] font-medium inline-flex items-center gap-1"
+                      class="font-mono-code px-2.5 py-0.5 rounded-full text-[11px] font-medium"
                       style="
-                        background-color: var(--md-sys-color-surface-container-highest);
+                        background-color: var(--md-sys-color-surface);
+                        border: 1px solid var(--md-sys-color-outline-variant);
                         color: var(--md-sys-color-on-surface-variant);
                       "
-                      title="Remote server blocks cross-origin font rendering in preview"
                     >
-                      <span class="material-symbols-rounded text-[14px]">warning</span>
-                      <span>Fallback preview (CORS)</span>
+                      ${weight} · ${style}
+                    </span>
+
+                    <span id="var-badge-slot-${globalIdx}" class="inline-flex items-center">
+                      ${variableBadgeHtml}
                     </span>
                   </div>
 
                   <!-- Action Buttons -->
                   <div class="flex flex-wrap items-center gap-2 shrink-0">
-                    <a
-                      href="${safeLink}"
-                      download="${safeFileName}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="m3-primary-btn px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5"
-                      title="Download font file"
+                    <button
+                      type="button"
+                      data-action="download-original"
+                      data-index="${globalIdx}"
+                      class="m3-primary-btn px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                      title="Download original font file"
                     >
                       <span class="material-symbols-rounded text-[17px]">download</span>
                       <span>Download</span>
-                    </a>
+                    </button>
+
+                    ${
+                      isWoff2
+                        ? `<button
+                            id="convert-btn-${globalIdx}"
+                            type="button"
+                            data-action="convert-woff2"
+                            data-index="${globalIdx}"
+                            class="m3-tonal-btn px-3.5 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
+                            title="Decompress WOFF2 and download desktop TTF/OTF font"
+                          >
+                            <span class="material-symbols-rounded text-[17px]">transform</span>
+                            <span class="convert-label">${escapeHtml(convertTargetLabel)}</span>
+                          </button>`
+                        : ""
+                    }
 
                     <button
                       type="button"
@@ -1078,7 +1406,7 @@
                       class="m3-tonal-btn px-3.5 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
                       title="Copy direct font URL"
                     >
-                      <span class="material-symbols-rounded text-[17px]">content_copy</span>
+                      <span class="material-symbols-rounded text-[17px]">link</span>
                       <span>Copy URL</span>
                     </button>
 
@@ -1087,7 +1415,7 @@
                       data-action="copy-css"
                       data-index="${globalIdx}"
                       class="m3-tonal-btn px-3.5 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer"
-                      title="Copy @font-face CSS rule"
+                      title="Copy @font-face CSS snippet"
                     >
                       <span class="material-symbols-rounded text-[17px]">code</span>
                       <span>@font-face</span>
@@ -1106,17 +1434,19 @@
                   </div>
                 </div>
 
-                <!-- Live Specimen Area -->
+                <!-- Live @font-face Specimen Area -->
                 <div
                   class="specimen-box px-4 sm:px-5 py-4 sm:py-5 transition-all"
                   contenteditable="true"
                   spellcheck="false"
                   aria-label="Editable live font specimen"
-                  style="font-family: '${alias}', 'Google Sans Flex', sans-serif; font-size: ${fontSize}; line-height: 1.35;"
-                >${escapeHtml(previewText)}</div>
+                  style="font-family: '${alias}', 'Google Sans Flex', sans-serif; font-size: ${fontSize}; font-weight: ${
+              /^\d+$/.test(weight) ? weight : "400"
+            }; font-style: ${style}; line-height: 1.35;"
+                >${escapeHtml(specimenText)}</div>
 
                 <!-- Metadata Footer: File Name & Original Link -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 text-xs" style="color: var(--md-sys-color-on-surface-variant);">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-0.5 text-xs" style="color: var(--md-sys-color-on-surface-variant);">
                   <div class="flex items-center gap-1.5 min-w-0">
                     <span class="font-semibold shrink-0">File:</span>
                     <span class="font-mono-code truncate">${safeFileName}</span>
@@ -1134,14 +1464,30 @@
                     </a>
                   </div>
                 </div>
+
+                <!-- Expandable CSS Usage Selectors -->
+                ${usageHtml}
               </article>
             `;
           })
           .join("");
       }
 
-      // Handle Card Action Clicks (Event Delegation)
-      fontCardsGrid.addEventListener("click", (e) => {
+      // Trigger file download from Uint8Array or ArrayBuffer
+      function triggerBinaryDownload(bytes, fileName, mimeType = "application/octet-stream") {
+        const blob = new Blob([bytes], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+
+      // Handle Card Action Clicks
+      fontCardsGrid.addEventListener("click", async (e) => {
         const btn = e.target.closest("button[data-action]");
         if (!btn) return;
 
@@ -1150,17 +1496,79 @@
         const font = currentFonts[index];
         if (!font) return;
 
-        if (action === "copy-link") {
-          copyTextToClipboard(font.originalFontLink, "Font URL copied");
+        const rawUrl = font.originalFontLink || font.url;
+
+        if (action === "download-original") {
+          const baseName = font.fontFileName || `${font.fontName || "font"}.${getFontFormat(font).toLowerCase()}`;
+          try {
+            const buffer = font._rawBuffer || (await fetchFontBinary(rawUrl));
+            font._rawBuffer = buffer;
+            triggerBinaryDownload(buffer, baseName);
+            showSnackbar(`Downloaded ${baseName}`, "download");
+          } catch {
+            // Fallback to opening original link directly if proxy isn't configured
+            window.open(rawUrl, "_blank", "noopener,noreferrer");
+          }
+        } else if (action === "convert-woff2") {
+          const iconEl = btn.querySelector(".material-symbols-rounded");
+          const labelEl = btn.querySelector(".convert-label");
+          const prevLabel = labelEl ? labelEl.textContent : "Convert to TTF/OTF";
+
+          btn.disabled = true;
+          if (iconEl) {
+            iconEl.textContent = "autorenew";
+            iconEl.classList.add("spin-icon");
+          }
+          if (labelEl) labelEl.textContent = "Converting...";
+
+          try {
+            let sfntBytes = font._sfntBytes;
+            if (!sfntBytes) {
+              const buffer = font._rawBuffer || (await fetchFontBinary(rawUrl));
+              font._rawBuffer = buffer;
+              sfntBytes = await decompressWoff2ToSfnt(buffer);
+              font._sfntBytes = sfntBytes;
+            }
+
+            const meta = inspectSfntBytes(sfntBytes);
+            font._isVariable = meta.isVariable;
+            font._axes = meta.axes;
+            font._convertedExt = meta.targetExt;
+            updateCardBinaryBadges(index, font);
+
+            const cleanBase = (font.fontFileName || font.fontName || "converted-font")
+              .replace(/\.(woff2?|ttf|otf|eot|svg)$/i, "")
+              .replace(/[^a-zA-Z0-9._-]+/g, "-");
+            const outFileName = `${cleanBase}.${meta.targetExt}`;
+            const outMime = meta.targetExt === "otf" ? "font/otf" : "font/ttf";
+
+            triggerBinaryDownload(sfntBytes, outFileName, outMime);
+            showSnackbar(`Converted & downloaded ${outFileName}`, "check_circle");
+          } catch (err) {
+            showSnackbar(err.message || "WOFF2 conversion failed", "error");
+          } finally {
+            btn.disabled = false;
+            if (iconEl) {
+              iconEl.classList.remove("spin-icon");
+              iconEl.textContent = "transform";
+            }
+            if (labelEl) {
+              labelEl.textContent = font._convertedExt
+                ? `Convert to .${font._convertedExt}`
+                : prevLabel;
+            }
+          }
+        } else if (action === "copy-link") {
+          copyTextToClipboard(rawUrl, "Direct font URL copied");
           const iconEl = btn.querySelector(".material-symbols-rounded");
           if (iconEl) {
             iconEl.textContent = "check";
             setTimeout(() => {
-              iconEl.textContent = "content_copy";
+              iconEl.textContent = "link";
             }, 1500);
           }
         } else if (action === "copy-css") {
-          const fmt = getFontFormat(font.fontFileName, font.originalFontLink).toLowerCase();
+          const fmt = getFontFormat(font).toLowerCase();
           const formatHint =
             fmt === "ttf"
               ? "truetype"
@@ -1169,8 +1577,8 @@
               : fmt === "eot"
               ? "embedded-opentype"
               : fmt;
-          const cssSnippet = `@font-face {\n  font-family: '${font.fontName}';\n  src: url('${font.originalFontLink}') format('${formatHint}');\n  font-weight: normal;\n  font-style: normal;\n  font-display: swap;\n}`;
-          copyTextToClipboard(cssSnippet, "@font-face CSS copied");
+          const cssSnippet = `@font-face {\n  font-family: '${font.fontName || font.family}';\n  src: url('${rawUrl}') format('${formatHint}');\n  font-weight: ${font.weight || "400"};\n  font-style: ${font.style || "normal"};\n  font-display: swap;\n}`;
+          copyTextToClipboard(cssSnippet, "@font-face CSS snippet copied");
           const iconEl = btn.querySelector(".material-symbols-rounded");
           if (iconEl) {
             iconEl.textContent = "check";
@@ -1181,11 +1589,18 @@
         }
       });
 
-      // Display Payload Results
+      // Render Payload Results
       function displayResults(payload) {
-        currentFonts = Array.isArray(payload.fonts) ? payload.fonts : [];
+        cleanupBlobUrls();
+        currentFonts = Array.isArray(payload.fonts)
+          ? payload.fonts.map((f) => ({
+              ...f,
+              fontName: f.fontName || f.family || "Unknown Font",
+              originalFontLink: f.originalFontLink || f.url || "",
+            }))
+          : [];
         currentScannedUrl = payload.url || "";
-        activeFormatFilter = "ALL";
+        activeChipFilter = "ALL";
         filterFontsInput.value = "";
 
         idleState.classList.add("hidden");
@@ -1198,9 +1613,12 @@
         scannedUrlLink.href = currentScannedUrl;
         scannedUrlText.textContent = currentScannedUrl;
 
-        registerFontFaces(currentFonts);
-        renderFormatBreakdown(currentFonts);
+        registerInitialFontFaces(currentFonts);
+        renderFilterChips(currentFonts);
         renderFontCards();
+
+        // Inspect binaries asynchronously in background for fvar variable detection + WOFF2 conversion readiness
+        inspectAllFontBinaries(currentFonts);
       }
 
       // Show Error State
@@ -1212,8 +1630,8 @@
         errorSection.classList.remove("hidden");
       }
 
-      // Execute Inspection Against Cloudflare Worker
-      async function inspectWebsite(rawUrl) {
+      // Execute Extraction via Cloudflare Worker
+      async function extractFromWebsite(rawUrl) {
         let normalizedTarget;
         try {
           normalizedTarget = normalizeUrl(rawUrl);
@@ -1223,24 +1641,24 @@
           return;
         }
 
-        const workerBase = getWorkerUrl();
-        if (workerBase.includes("your-subdomain.workers.dev")) {
-          toggleConfigPanel(true);
+        if (!isWorkerConfigured()) {
+          toggleEndpointDrawer(true);
           displayError(
             "Worker endpoint not configured",
-            "Set your deployed Cloudflare Worker URL in the endpoint panel above, or click 'sample' in the top bar to preview the interface."
+            "Save your deployed Cloudflare Worker URL in the endpoint drawer above, or click 'sample' in the top bar to test live previews and WOFF2 conversion."
           );
           return;
         }
 
         errorSection.classList.add("hidden");
         idleState.classList.add("hidden");
-        loadingText.textContent = `Inspecting ${new URL(normalizedTarget).hostname}...`;
+        loadingText.textContent = `Extracting fonts from ${new URL(normalizedTarget).hostname}...`;
         loadingSection.classList.remove("hidden");
-        inspectBtn.disabled = true;
+        extractBtn.disabled = true;
 
         try {
-          const endpoint = `${workerBase}/?url=${encodeURIComponent(normalizedTarget)}`;
+          const workerUrl = getWorkerUrl();
+          const endpoint = `${workerUrl}/?url=${encodeURIComponent(normalizedTarget)}`;
           const response = await fetch(endpoint, {
             method: "GET",
             headers: {
@@ -1272,21 +1690,21 @@
           const isNetworkOrCors =
             err instanceof TypeError && /fetch/i.test(err.message);
           displayError(
-            "Inspection failed",
+            "Extraction failed",
             isNetworkOrCors
-              ? "Could not reach the Cloudflare Worker. Check that your Worker URL is correct and that you are running from https://fergassss1.github.io."
+              ? "Could not reach your Cloudflare Worker. Verify your endpoint URL and ensure this page is hosted on https://fergassss1.github.io."
               : err.message
           );
         } finally {
-          inspectBtn.disabled = false;
+          extractBtn.disabled = false;
         }
       }
 
       // Event Listeners
-      inspectForm.addEventListener("submit", (e) => {
+      extractForm.addEventListener("submit", (e) => {
         e.preventDefault();
         if (!targetUrlInput.value.trim()) return;
-        inspectWebsite(targetUrlInput.value);
+        extractFromWebsite(targetUrlInput.value);
       });
 
       targetUrlInput.addEventListener("input", () => {
@@ -1308,24 +1726,22 @@
           targetUrlInput.value = url;
           clearUrlBtn.classList.remove("hidden");
           clearUrlBtn.classList.add("inline-flex");
-          inspectWebsite(url);
+          extractFromWebsite(url);
         });
       });
 
-      demoBtn.addEventListener("click", () => {
+      sampleBtn.addEventListener("click", () => {
         targetUrlInput.value = SAMPLE_RESPONSE.url;
         clearUrlBtn.classList.remove("hidden");
         clearUrlBtn.classList.add("inline-flex");
         loadingSection.classList.add("hidden");
         displayResults(SAMPLE_RESPONSE);
-        showSnackbar("Loaded sample font inspection");
+        showSnackbar("Loaded sample fonts", "visibility");
       });
 
       // Live Specimen Text & Font Size Controls
       previewTextInput.addEventListener("input", () => {
-        const newText =
-          previewTextInput.value.trim() ||
-          "The quick brown fox jumps over the lazy dog 0123456789";
+        const newText = previewTextInput.value.trim() || DEFAULT_SPECIMEN;
         document.querySelectorAll(".specimen-box").forEach((box) => {
           box.textContent = newText;
         });
@@ -1343,7 +1759,7 @@
         renderFontCards();
       });
 
-      // Boot
+      // Initialize App
       initTheme();
       initWorkerConfig();
     })();
